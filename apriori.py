@@ -13,12 +13,13 @@ def get_n_baskets (file, n):
 			array.append(line.rstrip('\n').split(' '))
 	return array
 
-def count_items (buckets) :
+def get_item_counts (buckets) :
 	c = Counter()
 
 	for b in buckets:
 		c.update(b)
 
+	del c['']
 	return c
 
 def count_items_tuples (tuples, baskets):
@@ -56,17 +57,21 @@ def find_frequent_item_set (candidate_item_set, min_threshold):
 
 
 baskets = get_n_baskets('dataset', 88000)
-item_set = count_items(baskets)
-del item_set['']
+
+item_set = get_item_counts(baskets)
 frequent = find_frequent_item_set(item_set, minSupport)
+print item_set
 print frequent
+print "length:", len(frequent)
 
 doubles = list(combinations(frequent, 2))
 tuple_count = count_items_tuples (doubles, baskets)
 tuple_frequent = find_frequent_item_set(tuple_count, minSupport)
 print tuple_frequent
+print "length:", len(tuple_frequent)
 
 triples = list(combinations(frequent, 3))
 triple_count = count_items_triples (triples, baskets)
 triple_frequent = find_frequent_item_set(triple_count, minSupport)
 print triple_frequent
+print "length:", len(triple_frequent)
