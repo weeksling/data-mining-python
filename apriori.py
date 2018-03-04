@@ -1,7 +1,8 @@
-from itertools import islice, combinations
+from itertools import islice, combinations, chain
 from collections import Counter, defaultdict
+import time
 
-minSupport = 2681
+minSupport = 20000 #2681
 minConfidence = 0.60
 
 
@@ -53,25 +54,51 @@ def find_frequent_item_set (candidate_item_set, min_threshold):
 
 	return candidate_item_set.keys()
 
+def apriori_no_flattening (baskets):
+	item_set = get_item_counts(baskets)
+	frequent = find_frequent_item_set(item_set, minSupport)
+	print "items length:", len(frequent)
+
+	doubles = list(combinations(frequent, 2))
+	tuple_count = count_items_tuples (doubles, baskets)
+	tuple_frequent = find_frequent_item_set(tuple_count, minSupport)
+	print "tuple length:", len(tuple_frequent)
+
+	triples = list(combinations(frequent, 3))
+
+	triple_count = count_items_triples (triples, baskets)
+	triple_frequent = find_frequent_item_set(triple_count, minSupport)
+	print triple_frequent
+	print "triple length:", len(triple_frequent)
+
+def apriori_with_flattening (baskets):
+	item_set = get_item_counts(baskets)
+	frequent = find_frequent_item_set(item_set, minSupport)
+	print "items length:", len(frequent)
 
 
+	doubles = list(combinations(frequent, 2))
 
-baskets = get_n_baskets('dataset', 88000)
+	tuple_count = count_items_tuples (doubles, baskets)
 
-item_set = get_item_counts(baskets)
-frequent = find_frequent_item_set(item_set, minSupport)
-print item_set
-print frequent
-print "length:", len(frequent)
+	tuple_frequent = find_frequent_item_set(tuple_count, minSupport)
+	print "tuple length:", len(tuple_frequent)
 
-doubles = list(combinations(frequent, 2))
-tuple_count = count_items_tuples (doubles, baskets)
-tuple_frequent = find_frequent_item_set(tuple_count, minSupport)
-print tuple_frequent
-print "length:", len(tuple_frequent)
 
-triples = list(combinations(frequent, 3))
-triple_count = count_items_triples (triples, baskets)
-triple_frequent = find_frequent_item_set(triple_count, minSupport)
-print triple_frequent
-print "length:", len(triple_frequent)
+	flattened = list(set(chain.from_iterable(tuple_frequent)))
+	triples = list(combinations(flattened, 3))
+
+	triple_count = count_items_triples (triples, baskets)
+	triple_frequent = find_frequent_item_set(triple_count, minSupport)
+	print triple_frequent
+	print "triple length:", len(triple_frequent)
+
+baskets = get_n_baskets('netflix.data', 88000)
+
+# start = time.time()
+# apriori_no_flattening(baskets)
+# print 'elapsed', time.time() - start
+
+start = time.time()
+apriori_with_flattening(baskets)
+print 'elapsed', time.time() - start
