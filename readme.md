@@ -1,11 +1,12 @@
-#Data Mining Python library
+# Data Mining Python library
+
 This library implements basic data mining for disk-bound data. 
 Featuring two algorithms: A-Priori, and Park-Chen-Yu (PCY).
 
-##Requirements
+## Requirements
 Python 2.7
 
-##Usage
+## Usage
 ```
 usage: datamining.py [-h] [-a {APRIORI,PCY}] [-s SUPPORT] datafile
 
