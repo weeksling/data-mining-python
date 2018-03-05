@@ -41,19 +41,6 @@ def find_frequent_triples(dataset, candidate_triples, supportThreshold):
     return frequent_triples
 
 
-def get_candidate_doubles(frequent_items):
-    return list(combinations(frequent_items, 2))
-
-
-def get_candidate_triples(prev_frequent):
-    flattened = list(set(chain.from_iterable(prev_frequent)))
-    return list(combinations(flattened, 3))
-    
-
-def parse_items(line):
-    return line.rstrip('\n').split(' ')
-
-
 def count_candidate_items(dataset):
     counter = Counter()
     num_buckets = 0
@@ -72,28 +59,44 @@ def count_candidate_doubles(dataset, candidates):
     num_buckets = 0
 
     for bucket in dataset:
+        items = parse_items(bucket)
         num_buckets += 1
         for c in candidates:
-            if c[0] in bucket and c[1] in bucket:
+            if c[0] in items and c[1] in items:
                 if (c in d):
                     d[c] += 1
                 else:
                     d[c] = 1
     return d, num_buckets
+
 
 def count_candidate_triples(dataset, candidates):
     d = {}
     num_buckets = 0
 
     for bucket in dataset:
+        items = parse_items(bucket)
         num_buckets += 1
         for c in candidates:
-            if c[0] in bucket and c[1] in bucket and c[2] in bucket:
+            if c[0] in items and c[1] in items and c[2] in items:
                 if (c in d):
                     d[c] += 1
                 else:
                     d[c] = 1
     return d, num_buckets
+
+
+def parse_items(line):
+    return line.rstrip('\n').split(' ')
+
+
+def get_candidate_doubles(frequent_items):
+    return list(combinations(frequent_items, 2))
+
+
+def get_candidate_triples(prev_frequent):
+    flattened = list(set(chain.from_iterable(prev_frequent)))
+    return list(combinations(flattened, 3))
 
 
 def filter_frequent(candidate_items, minSupport):
