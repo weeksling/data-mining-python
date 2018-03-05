@@ -93,7 +93,9 @@ def count_candidate_triples(dataset, candidates):
 
 
 def parse_items(line):
-    return line.rstrip('\n').split(' ')
+    string_list = line.rstrip('\n').split(' ')
+    cleaned_list = filter(None, string_list)
+    return map(int, cleaned_list)
 
 
 def get_candidate_doubles(frequent_items):

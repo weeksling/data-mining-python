@@ -1,7 +1,7 @@
 from collections import Counter
 from itertools import combinations, chain
 
-def apriori(dataset, supportThreshold):
+def pcy(dataset, supportThreshold):
     frequent_items = find_frequent_items(dataset, supportThreshold)
     
     print "Frequent items length:", len(frequent_items)
@@ -93,7 +93,9 @@ def count_candidate_triples(dataset, candidates):
 
 
 def parse_items(line):
-    return line.rstrip('\n').split(' ')
+    string_list = line.rstrip('\n').split(' ')
+    cleaned_list = filter(None, string_list)
+    return map(int, cleaned_list)
 
 
 def get_candidate_doubles(frequent_items):
