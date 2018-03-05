@@ -22,15 +22,11 @@ def get_options():
 
 def main():
     datafile, algorithm, minSupport = get_options()
-    start = time.time()
-
+    results = None
     if (algorithm == APRIORI):
         results = apriori(datafile, minSupport)
     elif (algorithm == PCY):
         results = pcy(datafile, minSupport)
-
-    print results
-    print 'elapsed', time.time() - start
     return results
 
 if __name__ == "__main__":

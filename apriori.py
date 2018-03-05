@@ -1,103 +1,106 @@
-from itertools import islice, combinations, chain
-from collections import Counter, defaultdict
-import time
+from collections import Counter
+from itertools import combinations, chain
 
-minSupport = 2644.86 #2681
-minConfidence = 0.60
+def apriori(dataset, supportThreshold):
+    frequent_items = find_frequent_items(dataset, supportThreshold)
+    
+    print "Frequent items length:", len(frequent_items)
 
+    dataset.seek(0)
+    candidate_doubles = get_candidate_doubles(frequent_items)
+    frequent_doubles = find_frequent_doubles(dataset, candidate_doubles, supportThreshold)
+    
+    print "Frequent double length:", len(frequent_doubles)
 
-def get_n_baskets (dataset, n):
-	array = []
-	# return islice(dataset, n)
-	for line in islice(dataset, n):
-		array.append(line.rstrip('\n').split(' '))
-	return array
+    dataset.seek(0)
+    candidate_triples = get_candidate_triples(frequent_doubles)
+    frequent_triples = find_frequent_triples(dataset, candidate_triples, supportThreshold)
 
-def get_item_counts (buckets) :
-	c = Counter()
-
-	for b in buckets:
-		c.update(b)
-
-	del c['']
-	return c
-
-def count_items_tuples (tuples, baskets):
-	d = {}
-
-	for b in baskets:
-		for t in tuples:
-			if t[0] in b and t[1] in b:
-				if (t in d):
-					d[t] += 1
-				else:
-					d[t] = 1
-	return d
-
-def count_items_triples (tuples, baskets):
-	d = {}
-
-	for b in baskets:
-		for t in tuples:
-			if t[0] in b and t[1] in b and t[2] in b:
-				if (t in d):
-					d[t] += 1
-				else:
-					d[t] = 1
-	return d
-
-def find_frequent_item_set (candidate_item_set, min_threshold):
-	for key, value in candidate_item_set.items():
-		if (value < min_threshold):
-			del candidate_item_set[key]
-
-	return candidate_item_set.keys()
-
-def apriori_no_flattening (baskets):
-	item_set = get_item_counts(baskets)
-	frequent = find_frequent_item_set(item_set, minSupport)
-	print "items length:", len(frequent)
-
-	doubles = list(combinations(frequent, 2))
-	tuple_count = count_items_tuples (doubles, baskets)
-	tuple_frequent = find_frequent_item_set(tuple_count, minSupport)
-	print "tuple length:", len(tuple_frequent)
-
-	triples = list(combinations(frequent, 3))
-
-	triple_count = count_items_triples (triples, baskets)
-	triple_frequent = find_frequent_item_set(triple_count, minSupport)
-	print triple_frequent
-	print "triple length:", len(triple_frequent)
-
-def apriori_with_flattening (baskets):
-	item_set = get_item_counts(baskets)
-	frequent = find_frequent_item_set(item_set, minSupport)
-	
-	print "items length:", len(frequent)
-
-	doubles = list(combinations(frequent, 2))
-	tuple_count = count_items_tuples (doubles, baskets)
-	tuple_frequent = find_frequent_item_set(tuple_count, minSupport)
-	
-	print "tuple length:", len(tuple_frequent)
+    print frequent_triples
+    print "Frequent triples length:", len(frequent_triples)
 
 
-	flattened = list(set(chain.from_iterable(tuple_frequent)))
-	triples = list(combinations(flattened, 3))
-	triple_count = count_items_triples (triples, baskets)
-	triple_frequent = find_frequent_item_set(triple_count, minSupport)
-
-	print "triple length:", len(triple_frequent)
-
-
-def apriori (dataset, minSupport):
-	baskets = get_n_baskets(dataset, None)
-
-	# start = time.time()
-	# apriori_no_flattening(baskets)
-	# print 'elapsed', time.time() - start
-
-	apriori_with_flattening(baskets)
+def find_frequent_items(dataset, supportThreshold):
+    item_counts, num_buckets = count_candidate_items(dataset)
+    minSupport = num_buckets * supportThreshold
+    frequent_items = filter_frequent(item_counts, minSupport)
+    return frequent_items
 
 
+def find_frequent_doubles(dataset, candidate_doubles, supportThreshold):
+    double_counts, num_buckets = count_candidate_doubles(dataset, candidate_doubles)
+    minSupport = num_buckets * supportThreshold
+    frequent_doubles = filter_frequent(double_counts, minSupport)
+    return frequent_doubles
+
+
+def find_frequent_triples(dataset, candidate_triples, supportThreshold):
+    triple_counts, num_buckets  = count_candidate_triples(dataset, candidate_triples)
+    minSupport                  = num_buckets * supportThreshold
+    frequent_triples            = filter_frequent(triple_counts, minSupport)
+    return frequent_triples
+
+
+def count_candidate_items(dataset):
+    counter = Counter()
+    num_buckets = 0
+
+    for line in dataset:
+        num_buckets = num_buckets + 1
+        items = parse_items(line)
+        counter.update(items)
+
+    del counter['']
+    return counter, num_buckets
+
+
+def count_candidate_doubles(dataset, candidates):
+    d = {}
+    num_buckets = 0
+
+    for bucket in dataset:
+        items = parse_items(bucket)
+        num_buckets += 1
+        for c in candidates:
+            if c[0] in items and c[1] in items:
+                if (c in d):
+                    d[c] += 1
+                else:
+                    d[c] = 1
+    return d, num_buckets
+
+
+def count_candidate_triples(dataset, candidates):
+    d = {}
+    num_buckets = 0
+
+    for bucket in dataset:
+        items = parse_items(bucket)
+        num_buckets += 1
+        for c in candidates:
+            if c[0] in items and c[1] in items and c[2] in items:
+                if (c in d):
+                    d[c] += 1
+                else:
+                    d[c] = 1
+    return d, num_buckets
+
+
+def parse_items(line):
+    return line.rstrip('\n').split(' ')
+
+
+def get_candidate_doubles(frequent_items):
+    return list(combinations(frequent_items, 2))
+
+
+def get_candidate_triples(prev_frequent):
+    flattened = list(set(chain.from_iterable(prev_frequent)))
+    return list(combinations(flattened, 3))
+
+
+def filter_frequent(candidate_items, minSupport):
+    for key, value in candidate_items.items():
+        if (value < minSupport):
+            del candidate_items[key]
+    return candidate_items.keys()
