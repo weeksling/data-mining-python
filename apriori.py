@@ -19,6 +19,12 @@ def apriori(dataset, supportThreshold):
     print frequent_triples
     print "Frequent triples length:", len(frequent_triples)
 
+    all_frequent = []
+    all_frequent.append(frequent_items[:])
+    all_frequent.append(frequent_doubles[:])
+    all_frequent.append(frequent_triples[:])
+    return all_frequent
+
 
 def find_frequent_items(dataset, supportThreshold):
     item_counts, num_buckets = count_candidate_items(dataset)
