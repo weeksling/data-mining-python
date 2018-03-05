@@ -2,7 +2,7 @@
 import sys, argparse
 import time
 
-from aprioriv2 import apriori
+from apriori import apriori
 from pcy import pcy
 
 APRIORI = 'APRIORI'
