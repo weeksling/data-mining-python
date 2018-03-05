@@ -10,7 +10,7 @@ NUM_BUCKETS = 50
 
 def xor_hash (item1, item2, num_buckets):
     return (item1 ^ umber(item2)) % num_buckets
-	'0'.
+
 def get_n_baskets (file, n):
 	array = []
 	with open (file) as dataset:
@@ -49,12 +49,15 @@ def find_frequent_item_set (candidate_item_set, min_threshold):
 
 	return candidate_item_set.keys()
 
+def pcy (dataset, minSupport):
+	print 'pcy not implemented yet'
+	pass
 
-baskets = get_n_baskets('dataset', 88000)
-item_counts, hash_counts = count_items_and_hashes(baskets)
-frequent_items = find_frequent_item_set(item_counts, minSupport)
+# baskets = get_n_baskets('dataset', 88000)
+# item_counts, hash_counts = count_items_and_hashes(baskets)
+# frequent_items = find_frequent_item_set(item_counts, minSupport)
 
-doubles = list(combinations(frequent_items, 2))
+# doubles = list(combinations(frequent_items, 2))
 
-candidate_vector = get_candidate_bit_vector(doubles, baskets)
+# candidate_vector = get_candidate_bit_vector(doubles, baskets)
 
