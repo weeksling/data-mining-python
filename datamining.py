@@ -23,14 +23,24 @@ def get_options():
 
     return args.datafile, args.alg, args.support, args.buckets, args.v, args.t
 
+def mine_data(algorithm, datafile, minSupport, num_buckets, is_verbose):
+    if (algorithm == APRIORI):
+        return apriori(datafile, minSupport, v=is_verbose)
+    elif (algorithm == PCY):
+        return pcy(datafile, minSupport, num_buckets, v=is_verbose)
+
 
 def main():
     datafile, algorithm, minSupport, num_buckets, is_verbose, do_time = get_options()
     results = None
-    if (algorithm == APRIORI):
-        results = apriori(datafile, minSupport, v=is_verbose)
-    elif (algorithm == PCY):
-        results = pcy(datafile, minSupport, num_buckets, v=is_verbose)
+
+    if do_time:
+        start = time.time()
+        results = mine_data(algorithm, datafile, minSupport, num_buckets, is_verbose)
+        print time.time() - start
+    else:
+        results = mine_data(algorithm, datafile, minSupport, num_buckets, is_verbose)
+
     print results
     return results
 
