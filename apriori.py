@@ -1,28 +1,27 @@
 from collections import Counter
 from itertools import combinations, chain
 
-def apriori(dataset, supportThreshold):
+def apriori(dataset, supportThreshold, v=False):
     frequent_items = find_frequent_items(dataset, supportThreshold)
     
-    print "Frequent items length:", len(frequent_items)
+    if v:
+        print "Frequent items length:", len(frequent_items)
 
     dataset.seek(0)
     candidate_doubles = get_candidate_doubles(frequent_items)
     frequent_doubles = find_frequent_doubles(dataset, candidate_doubles, supportThreshold)
     
-    print "Frequent double length:", len(frequent_doubles)
+    if v:
+        print "Frequent double length:", len(frequent_doubles)
 
     dataset.seek(0)
     candidate_triples = get_candidate_triples(frequent_doubles)
     frequent_triples = find_frequent_triples(dataset, candidate_triples, supportThreshold)
 
-    print frequent_triples
-    print "Frequent triples length:", len(frequent_triples)
+    if v:
+        print "Frequent triples length:", len(frequent_triples)
 
-    all_frequent = []
-    all_frequent.append(frequent_items[:])
-    all_frequent.append(frequent_doubles[:])
-    all_frequent.append(frequent_triples[:])
+    all_frequent = frequent_items[:] + frequent_doubles[:] + frequent_triples[:]
     return all_frequent
 
 
